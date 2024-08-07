@@ -116,7 +116,8 @@ public class SGLImage<T> : SGLImageType {
     }
 
     deinit {
-        buffer.baseAddress!.deallocate(capacity: buffer.count)
+        buffer.baseAddress!.deinitialize(count: buffer.count)
+        buffer.baseAddress!.deallocate()
     }
 
     public func withUnsafeMutableBufferPointer(body: (UnsafeMutableBufferPointer<T>) throws -> Void) rethrows {
