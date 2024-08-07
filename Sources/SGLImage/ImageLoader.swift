@@ -37,7 +37,7 @@ import Foundation
 final public class SGLImageLoader {
 
     // Short message about failure
-    public fileprivate(set) var error:String? = nil
+    public fileprivate(set) var error: String? = nil
 
     // The selected decoder. Find details about the image
     // from here. e.g. loader.decoder!.channels
@@ -76,7 +76,7 @@ final public class SGLImageLoader {
     public var flipVertical:Bool = SGLImageLoader.flipVertical
 
     // Needs to be NSInputStream eventually...
-    private var input:NSData
+    private var input: NSData
     private var inputPos = 0
     private var buf = [UInt8]()
     private var bufPos = 0
@@ -84,17 +84,20 @@ final public class SGLImageLoader {
 
     // Initialization API is a bit unstable until
     // NSInputStream is available on Linux.
-    public init(fromFile filename:String) {
+    public init(fromFile filename: String, bundle: Bundle = .main) {
         do {
-            try input = NSData(contentsOfFile: filename,
-                options: [.uncached, .alwaysMapped])
-        }
-        catch let error as NSError {
+            guard let url = bundle.url(forResource: filename, withExtension: nil) else {
+                self.error = "Image file not found: \(filename)"
+                input = NSData()
+                return
+            }
+
+            try input = NSData(contentsOf: url, options: [.uncached, .alwaysMapped])
+        } catch let error as NSError {
             self.error = error.localizedFailureReason
             input = NSData()
             return
-        }
-        catch {
+        } catch {
             self.error = String(describing: error)
             input = NSData()
             return
